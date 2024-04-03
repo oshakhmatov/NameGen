@@ -1,0 +1,58 @@
+﻿@page "/"
+@using NameGen.Mobile.Models
+@using NameGen.Services
+
+<div class="container">
+    <div>
+        <h1>@Name</h1>   
+    </div>
+    <div class="form-container">
+        <EditForm Model="@nameOptions" OnValidSubmit="@Generate">
+            <div class="form-group">
+                <label class="length-label">
+                    Name length:
+                    <InputNumber @bind-Value="nameOptions!.Length" />
+                </label>
+            </div>
+            <div class="form-group buttons">
+                <button type="submit">Generate</button>
+                <button type="button" hidden="@IsCopyButtonDisabled()" @onclick="CopyName">Copy</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    [SupplyParameterFromForm]
+    private NameOptions nameOptions { get; set; } = new NameOptions();
+
+    private string Name { get; set; }
+
+    private NameGenerator nameGenerator = new NameGenerator();
+
+    protected override async Task OnInitializedAsync()
+    {
+        nameOptions.Length = nameGenerator.NameLength;
+    }
+
+    private bool IsCopyButtonDisabled()
+    {
+        return string.IsNullOrWhiteSpace(Name);
+    }
+
+    private async Task CopyName()
+    {
+        if (!string.IsNullOrWhiteSpace(Name))
+        {
+            await Clipboard.Default.SetTextAsync(Name);
+            await App.Current!.MainPage!.DisplayAlert("Success", $"Name '{Name}' has been copied", "Close");
+        }
+    }
+
+    private void Generate()
+    {
+        nameGenerator.NameLength = nameOptions.Length;
+        Name = nameGenerator.Generate();
+    }
+}

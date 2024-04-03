@@ -1,6 +1,8 @@
-﻿namespace NameGen.Models;
+﻿using NameGen.Extensions;
 
-internal class Letter
+namespace NameGen.Models;
+
+public class Letter
 {
     public required char Value { get; init; }
     public required char[] Combos { get; set; }
@@ -24,5 +26,15 @@ internal class Letter
     public char[] GetConsonantEndings()
     {
         return Endings.Where(x => !x.IsVowel()).ToArray();
+    }
+
+    public static bool AllVowels(params char?[] chars)
+    {
+        return chars.All(c => c.HasValue && c.Value.IsVowel());
+    }
+
+    public static bool AllConsonants(params char?[] chars)
+    {
+        return chars.All(c => c.HasValue && !c.Value.IsVowel());
     }
 }
