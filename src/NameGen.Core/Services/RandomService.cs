@@ -1,4 +1,4 @@
-﻿namespace NameGen.Services;
+﻿namespace NameGen.Core.Services;
 
 public class RandomService
 {

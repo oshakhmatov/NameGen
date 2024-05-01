@@ -1,6 +1,6 @@
-﻿using NameGen.Extensions;
+﻿using NameGen.Core.Extensions;
 
-namespace NameGen.Models;
+namespace NameGen.Core.Models;
 
 public class Letter
 {

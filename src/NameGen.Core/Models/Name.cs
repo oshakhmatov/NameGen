@@ -1,6 +1,6 @@
-﻿using NameGen.Services;
+﻿using NameGen.Core.Services;
 
-namespace NameGen.Models;
+namespace NameGen.Core.Models;
 
 public class Name(int length, string[] endings, Letter[] letters)
 {

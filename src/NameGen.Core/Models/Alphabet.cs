@@ -1,6 +1,4 @@
-﻿using NameGen.Models;
-
-namespace NameGen;
+﻿namespace NameGen.Core.Models;
 
 internal static class Alphabet
 {

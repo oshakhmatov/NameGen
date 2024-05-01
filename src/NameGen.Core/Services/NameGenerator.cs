@@ -1,6 +1,6 @@
-﻿using NameGen.Models;
+﻿using NameGen.Core.Models;
 
-namespace NameGen.Services;
+namespace NameGen.Core.Services;
 
 public class NameGenerator
 {

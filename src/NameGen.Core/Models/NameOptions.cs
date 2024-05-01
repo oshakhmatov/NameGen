@@ -1,4 +1,4 @@
-﻿namespace NameGen.Mobile.Models;
+﻿namespace NameGen.Core.Models;
 
 public class NameOptions
 {
