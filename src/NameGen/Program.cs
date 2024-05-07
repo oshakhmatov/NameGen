@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NameGen.Core.Services;
 using NameGen.Dto;
-using NameGen.Services;
 using System.Text;
 
 Console.OutputEncoding = Encoding.Unicode;
@@ -17,7 +17,7 @@ var help =
 Console.WriteLine(help);
 Console.WriteLine();
 
-using IHost host = Host.CreateDefaultBuilder(args)
+using var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((hostContext, config) =>
     {
         config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);

@@ -18,10 +18,17 @@ public class NameGenerator
         }
     }
 
+    public string CultureName { get; set; } = "Не выбрана";
+
     public string Generate()
     {
-        var name = new Name(nameLength, Alphabet.Endings, Alphabet.Letters);
+        return new NameBuilder()
+            .WithLength(NameLength)
+            .Build();
+    }
 
-        return name.Build();
+    public string GetOptions()
+    {
+        return $"Длина: {nameLength}\nКультура: {CultureName}";
     }
 }

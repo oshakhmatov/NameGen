@@ -1,10 +1,10 @@
-﻿namespace NameGen.Services;
+﻿namespace NameGen.Core.Services;
 
-public class RandomService
+public class Randomizer
 {
     private static readonly Random random = new();
 
-    public static T GetRandomItem<T>(T[] variants)
+    public static T TakeFrom<T>(T[] variants)
     {
         var index = random.Next(0, variants.Length);
         return variants[index];
