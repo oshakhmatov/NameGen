@@ -1,24 +1,27 @@
-﻿using NameGen.Core.Services;
+﻿using NameGen.Core.Dto;
+using NameGen.Core.Extensions;
+using NameGen.Core.Services;
 
 namespace NameGen.Core.Models;
 
 public class NameBuilder
 {
+    private NameBuildingContext context = new();
+    private INameRule[] rules;
     private Letter[] letters;
-    private char firstLetter;
     private int length;
-    private string ending;
 
     public NameBuilder()
     {
+        rules = [];
         letters = Alphabet.Letters;
-        firstLetter = default;
+        context = new();
         length = 6;
     }
 
-    public NameBuilder WithFirstLetter(char firstLetter)
+    public NameBuilder WithFirstLetter(char? firstLetter)
     {
-        this.firstLetter = firstLetter;
+        context = context with { FirstLetter = firstLetter };
         return this;
     }
 
@@ -28,52 +31,100 @@ public class NameBuilder
         return this;
     }
 
-    public NameBuilder WithEnding(string ending)
+    public NameBuilder ExcludeLetters(char[] lettersToExclude)
     {
-        this.ending = ending;
+        letters = letters
+            .Where(l => !lettersToExclude.Contains(l.Value))
+            .ToArray();
+
+        foreach (var letter in letters)
+        {
+            letter.Combos = letter.Combos
+                .Where(c => !lettersToExclude.Contains(c))
+                .ToArray();
+
+            letter.Endings = letter.Endings
+                .Where(c => !lettersToExclude.Contains(c))
+                .ToArray();
+        }
+
         return this;
     }
 
-    public string Build()
+    public NameBuilder WithEndings(string[] endings)
     {
-        var body = new char[length];
-
-        if (ending == default)
-        {
-            ending = Randomizer.TakeFrom(letters.Select(l => l.Value).ToArray()).ToString();
-        }
-
-        var endingIndex = ending.Length - 1;
-        for (int i = length - 1; i >= length - ending.Length; i--)
-        {
-            body[i] = ending[endingIndex];
-            endingIndex--;
-        }
-
-        for (int i = length - ending.Length - 1; i >= 0; i--)
-        {
-            var variants = GetNextVariants(letters.First(l => l.Value == body[i + 1]), body[i + 1], i + 2 > length - 1 ? null : body[i + 2]);
-            body[i] = Randomizer.TakeFrom(variants);
-        }
-
-        var result = new string(body);
-
-        return string.Concat(result.First().ToString().ToUpper(), result.AsSpan(1));
+        context = context with { Ending = Randomizer.TakeFrom(endings) };
+        return this;
     }
 
-    private static char[] GetNextVariants(Letter prevLetter, char prevValue, char? prevPrevValue)
+    public NameBuilder ApplyRules(params INameRule[] rules)
     {
-        if (Letter.AllConsonants(prevValue, prevPrevValue))
+        this.rules = rules;
+        return this;
+    }
+
+    // fix 'Амлкал'
+    // adjust root to ending if specified
+    public string Build()
+    {
+        context = context with
         {
-            return prevLetter.GetVowelCombos();
-        }
-        else if (Letter.AllVowels(prevValue, prevPrevValue))
+            Root = new char[GetRootLength()]
+        };
+
+        if (context.FirstLetter == null || GetLetterByValue(context.FirstLetter.Value) == null)
         {
-            return prevLetter.GetConsonantCombos();
+            context = context with
+            {
+                FirstLetter = Randomizer.TakeFrom(letters).Value
+            };
         }
-        else
+
+        context = context with 
         {
-            return prevLetter.Combos;
+            PrevLetter = GetLetterByValue(context.FirstLetter.Value)
+        };
+
+        for (int i = 0; i < context.Root.Length; i++)
+        {
+            context.Root[i] = Randomizer.TakeFrom(GetNextLetterOptions(context.PrevLetter!.Combos));
+            context = context with
+            {
+                PrevPrevValue = i > 1 ? context.Root[i - 2] : context.FirstLetter,
+                PrevLetter = GetLetterByValue(context.Root[i])
+            };
         }
+
+        if (context.Ending == null)
+        {
+            context = context with
+            {
+                Ending = Randomizer.TakeFrom(GetNextLetterOptions(context.PrevLetter!.Endings)).ToString()
+            };
+        }
+
+        return string.Concat(context.FirstLetter.Value.ToUpper(), new string(context.Root), context.Ending);
+    }
+
+    private int GetRootLength()
+    {
+        var firstLetterLength = 1;
+        var endingLength = context.Ending == default ? 1 : context.Ending.Length;
+        return length - firstLetterLength - endingLength;
+    }
+
+    private Letter? GetLetterByValue(char value)
+    {
+        return letters.FirstOrDefault(l => l.Value == value);
+    }
+
+    private char[] GetNextLetterOptions(char[] availableLetterOptions)
+    {
+        context = context with { AvailableLetterOptions = availableLetterOptions };
+        foreach (var rule in rules)
+        {
+            context = context with { AvailableLetterOptions = rule.GetLetterOptions(context) };
+        }
+        return context.AvailableLetterOptions;
     }
 }

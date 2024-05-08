@@ -1,9 +1,14 @@
-﻿using NameGen.Core.Models;
+﻿using Microsoft.Extensions.Options;
+using NameGen.Core.Dto;
+using NameGen.Core.Models;
+using NameGen.Core.Services.NameRules;
+using Polly;
 
 namespace NameGen.Core.Services;
 
-public class NameGenerator
+public class NameGenerator(IOptionsMonitor<CultureOptions> options)
 {
+    private readonly IOptionsMonitor<CultureOptions> options = options;
     private int nameLength = 6;
 
     public int NameLength
@@ -20,11 +25,56 @@ public class NameGenerator
 
     public string CultureName { get; set; } = "Не выбрана";
 
-    public string Generate()
+    public string Generate(char? firstLetter)
     {
-        return new NameBuilder()
-            .WithLength(NameLength)
-            .Build();
+        if (firstLetter != null)
+        {
+            firstLetter = firstLetter
+                .ToString()!
+                .ToLowerInvariant()
+                .First();
+        }
+
+        if (CultureName != null)
+        {
+            CultureName = CultureName.ToLowerInvariant();
+        }
+
+        var culture = options.CurrentValue.Cultures.FirstOrDefault(c => c.Name == CultureName);
+
+        try
+        {
+            var policy = Policy
+                .Handle<Exception>()
+                .Retry(retryCount: 3);
+
+            return policy.Execute(() =>
+            {
+                var nameBuilder = new NameBuilder()
+                    .WithLength(NameLength)
+                    .WithFirstLetter(firstLetter);
+
+                if (culture != null)
+                {
+                    nameBuilder = nameBuilder
+                        .ExcludeLetters(culture.ExcludeLetters)
+                        .WithEndings(culture.Endings);
+                }
+
+                return nameBuilder
+                    .ApplyRules(
+                        new WithoutParticularDoubleConsonatAtStartRule(),
+                        new WithoutTripleConsonantRule(),
+                        new WithoutTripleVowelRule(),
+                        new WithRootAdaptedToEndingIfSpecifiedRule())
+                    .Build();
+            });
+        }
+        catch (Exception ex)
+        {
+            return $"Алгоритм не смог сгенерировать имя с 3 попыток, попробуйте изменить настройки.\nПричина ошибки: {ex.Message}";
+        }
+
     }
 
     public string GetOptions()

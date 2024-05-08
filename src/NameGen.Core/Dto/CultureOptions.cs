@@ -1,4 +1,4 @@
-﻿namespace NameGen.Dto;
+﻿namespace NameGen.Core.Dto;
 
 public class CultureOptions
 {

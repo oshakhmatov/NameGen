@@ -1,12 +1,7 @@
 ﻿namespace NameGen.Core.Models;
 
-internal static class Alphabet
+public static class Alphabet
 {
-    public static string[] Endings =>
-    [
-        "а", "в", "и", "л", "м", "н", "о", "р", "с", "т", "э"
-    ];
-
     public static Letter[] Letters =>
     [
         new Letter
@@ -14,7 +9,7 @@ internal static class Alphabet
             Value = 'а',
             Combos =
             [
-                'в', 'г', 'д', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'э', 'у'
+                'в', 'г', 'д', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'э'
             ],
             Endings =
             [
@@ -42,7 +37,7 @@ internal static class Alphabet
             ],
             Endings =
             [
-                'с', 'о'
+                'a', 'с', 'о', 'р' 
             ]
         },
         new Letter
@@ -54,7 +49,7 @@ internal static class Alphabet
             ],
             Endings =
             [
-                'о', 'г'
+                'о', 'а', 'р'
             ]
         },
         new Letter
@@ -114,7 +109,7 @@ internal static class Alphabet
             ],
             Endings =
             [
-                'а', 'и', 'о', 'р', 'с', 'т'
+                'а', 'р', 'с', 'т'
             ]
         },
         new Letter
