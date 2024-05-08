@@ -25,9 +25,9 @@ public class NameGenerator(IOptionsMonitor<CultureOptions> options)
 
     public string CultureName { get; set; } = "Не выбрана";
 
-    public string Generate(char? firstLetter)
+    public string Generate(char firstLetter)
     {
-        if (firstLetter != null)
+        if (firstLetter != default)
         {
             firstLetter = firstLetter
                 .ToString()!
@@ -63,10 +63,10 @@ public class NameGenerator(IOptionsMonitor<CultureOptions> options)
 
                 return nameBuilder
                     .ApplyRules(
-                        new WithoutParticularDoubleConsonatAtStartRule(),
                         new WithoutTripleConsonantRule(),
                         new WithoutTripleVowelRule(),
-                        new WithRootAdaptedToEndingIfSpecifiedRule())
+                        new WithRootAdaptedToEndingIfSpecifiedRule(),
+                        new WithoutDoubleConsonantAtStartRule())
                     .Build();
             });
         }

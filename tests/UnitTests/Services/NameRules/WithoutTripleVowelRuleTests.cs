@@ -10,12 +10,7 @@ public class WithoutTripleVowelRuleTests
     [Fact]
     public void WhenTwoVowelsExist_ReturnsConsonants()
     {
-        var context = new NameBuildingContext()
-        {
-            AvailableLetterOptions = Alphabet.Letters.First(l => l.Value == 'а').Combos,
-            PrevLetter = Alphabet.Letters.First(l => l.Value == 'а'),
-            PrevPrevValue = 'а'
-        };
+        var context = new NameBuildingContext(Alphabet.Default, ['а', 'а', default, default], 2);
 
         var sut = new WithoutTripleVowelRule();
 

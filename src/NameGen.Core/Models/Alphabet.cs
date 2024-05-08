@@ -1,9 +1,53 @@
 ﻿namespace NameGen.Core.Models;
 
-public static class Alphabet
+public class Alphabet(Letter[] letters)
 {
-    public static Letter[] Letters =>
-    [
+    private Letter[] letters = letters;
+
+    public char[] GetAllLetterValues()
+    {
+        return letters.Select(l => l.Value).ToArray();
+    }
+
+    public Letter[] GetAllLetters()
+    {
+        return [..letters];
+    }
+
+    public Letter GetLetter(char c)
+    {
+        return letters.First(l => l.Value == c);
+    }
+
+    public char[] GetEndingsFor(char c)
+    {
+        return GetLetter(c).Endings;
+    }
+
+    public char[] GetCombosFor(char c)
+    {
+        return GetLetter(c).Combos;
+    }
+
+    public void ExcludeLetters(char[] lettersToExclude)
+    {
+        letters = letters
+            .Where(l => !lettersToExclude.Contains(l.Value))
+            .ToArray();
+
+        foreach (var letter in letters)
+        {
+            letter.Combos = letter.Combos
+                .Where(c => !lettersToExclude.Contains(c))
+                .ToArray();
+
+            letter.Endings = letter.Endings
+                .Where(c => !lettersToExclude.Contains(c))
+                .ToArray();
+        }
+    }
+
+    public static Alphabet Default => new([
         new Letter
         {
             Value = 'а',
@@ -33,11 +77,11 @@ public static class Alphabet
             Value = 'в',
             Combos =
             [
-                'г', 'е', 'и', 'л', 'н', 'о', 'р', 'с', 'э'
+                'г', 'е', 'и', 'л', 'н', 'о', 'р', 'с'
             ],
             Endings =
             [
-                'a', 'с', 'о', 'р' 
+                'a', 'с', 'о', 'р'
             ]
         },
         new Letter
@@ -57,7 +101,7 @@ public static class Alphabet
             Value = 'д',
             Combos =
             [
-                'а', 'в', 'д', 'и', 'м', 'н', 'о', 'р', 'э'
+                'а', 'в', 'и', 'м', 'н', 'о', 'р', 'э'
             ],
             Endings =
             [
@@ -69,11 +113,11 @@ public static class Alphabet
             Value = 'е',
             Combos =
             [
-                 'а', 'в', 'г', 'д', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с'
+                    'а', 'в', 'г', 'д', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с'
             ],
             Endings =
             [
-                 'г', 'к', 'л', 'н', 'р', 'т'
+                    'г', 'к', 'л', 'н', 'р', 'т'
             ]
         },
         new Letter
@@ -129,7 +173,7 @@ public static class Alphabet
             Value = 'м',
             Combos =
             [
-                'а', 'д', 'е', 'и', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'э'
+                'а', 'д', 'е', 'и', 'к', 'л', 'н', 'о', 'п', 'р', 'с', 'т', 'э'
             ],
             Endings =
             [
@@ -141,7 +185,7 @@ public static class Alphabet
             Value = 'н',
             Combos =
             [
-                'а', 'б', 'в', 'г', 'д', 'е', 'и', 'к', 'л', 'н', 'о', 'р', 'т', 'э'
+                'а', 'б', 'в', 'г', 'д', 'е', 'и', 'к', 'л', 'о', 'р', 'т', 'э'
             ],
             Endings =
             [
@@ -165,7 +209,7 @@ public static class Alphabet
             Value = 'п',
             Combos =
             [
-                'а', 'л', 'о', 'п', 'р', 'т'
+                'а', 'л', 'о', 'р', 'т'
             ],
             Endings =
             [
@@ -201,7 +245,7 @@ public static class Alphabet
             Value = 'т',
             Combos =
             [
-                'а', 'в', 'и', 'л', 'м', 'н', 'о', 'р', 'с', 'т', 'э'
+                'а', 'в', 'и', 'л', 'м', 'н', 'о', 'р', 'с', 'э'
             ],
             Endings =
             [
@@ -232,5 +276,5 @@ public static class Alphabet
                 'л', 'н', 'р', 'с', 'т'
             ]
         },
-    ];
+    ]);
 }

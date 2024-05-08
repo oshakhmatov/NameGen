@@ -1,6 +1,5 @@
 ﻿using NameGen.Core.Dto;
 using NameGen.Core.Extensions;
-using NameGen.Core.Models;
 
 namespace NameGen.Core.Services.NameRules;
 
@@ -8,14 +7,16 @@ public class WithRootAdaptedToEndingIfSpecifiedRule : INameRule
 {
     public char[] GetLetterOptions(NameBuildingContext context)
     {
-        if (context.Ending != null && context.Root![^1] == default(char) && context.Root![^2] != default(char))
+        if (context.Ending != null &&
+            context.CurrentEndingPosition == null &&
+            context.CurrentPosition == context.Body.Length - context.Ending.Length - 2)
         {
             var endingLetter = context.Ending.First();
 
-            var letters = Alphabet.Letters
+            var letters = context.Alphabet.GetAllLetters()
                 .Where(l => l.Combos.Contains(endingLetter))
                 .Select(l => l.Value)
-                .Where(v => context.PrevLetter!.Combos.Contains(v))
+                .Where(v => context.Alphabet.GetLetter(context.PrevLetter).Combos.Contains(v))
                 .ToArray();
 
             if (endingLetter.IsVowel())
@@ -28,6 +29,6 @@ public class WithRootAdaptedToEndingIfSpecifiedRule : INameRule
             }
         }
 
-        return context.AvailableLetterOptions!;
+        return context.GetDefaultLetters();
     }
 }
