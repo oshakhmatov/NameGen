@@ -9,11 +9,16 @@ Console.OutputEncoding = Encoding.Unicode;
 Console.InputEncoding = Encoding.Unicode;
 
 var helpMessage =
+    "/////////////////////////////////////////////////////////\n" +
+    "NameGen v1.0\n" +
+    "Настройки культур можно изменить в файле appsettings.json\n" +
+    "/////////////////////////////////////////////////////////\n" +
     "Для просмотра этих команд: помощь\n" +
     "Для просмотра опций: опции\n" +
+    "Для просмотра списка культур: культуры\n" +
     "Задать первую букву: <буква> (например: а)\n" +
-    "Для установки культуры: культура <название> (например: культура экрон)\n" +
-    "Для установки длины: длина <значение> (например: длина 6)";
+    "Для установки культуры: культура <название> (например: культура экронская)\n" +
+    "Для установки длины: длина <значение> (например: длина 6). От 2 до 12";
 
 
 Console.WriteLine(helpMessage);
@@ -40,7 +45,7 @@ while (true)
 
     if (input.StartsWith("опции"))
     {
-        Console.WriteLine(nameGenerator.GetOptions());
+        Console.WriteLine($"///\n{nameGenerator.GetOptions()}\n///");
     }
     else if (input.StartsWith("длина"))
     {
@@ -49,6 +54,11 @@ while (true)
     else if (input.StartsWith("культура"))
     {
         nameGenerator.CultureName = input.Split().Last();
+        Console.WriteLine($"///\n{nameGenerator.GetCultureInfo()}\n///");
+    }
+    else if (input.StartsWith("культуры"))
+    {
+        Console.WriteLine($"///\n{nameGenerator.GetCultures()}\n///");
     }
     else if (input.StartsWith("помощь"))
     {

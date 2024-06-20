@@ -3,6 +3,7 @@ using NameGen.Core.Dto;
 using NameGen.Core.Models;
 using NameGen.Core.Services.NameRules;
 using Polly;
+using System.Text;
 
 namespace NameGen.Core.Services;
 
@@ -46,7 +47,7 @@ public class NameGenerator(IOptionsMonitor<CultureOptions> options)
         {
             var policy = Policy
                 .Handle<Exception>()
-                .Retry(retryCount: 3);
+                .Retry(retryCount: 10);
 
             return policy.Execute(() =>
             {
@@ -72,7 +73,7 @@ public class NameGenerator(IOptionsMonitor<CultureOptions> options)
         }
         catch (Exception ex)
         {
-            return $"Алгоритм не смог сгенерировать имя с 3 попыток, попробуйте изменить настройки.\nПричина ошибки: {ex.Message}";
+            return $"Алгоритм не смог сгенерировать имя с 10 попыток, попробуйте изменить настройки.\nПричина ошибки: {ex.Message}";
         }
 
     }
@@ -80,5 +81,29 @@ public class NameGenerator(IOptionsMonitor<CultureOptions> options)
     public string GetOptions()
     {
         return $"Длина: {nameLength}\nКультура: {CultureName}";
+    }
+
+    public string GetCultures()
+    {
+        var cultureInfos = new List<string>();
+        for (var i=0; i < options.CurrentValue.Cultures.Length; i++)
+        {
+            cultureInfos.Add($"{i+1}. {options.CurrentValue.Cultures[i].Name}");
+        }
+        return String.Join("\n", cultureInfos);
+    }
+
+    public string GetCultureInfo()
+    {
+        var culture = options.CurrentValue.Cultures.FirstOrDefault(c => c.Name == CultureName);
+        if (culture == null)
+        {
+            return $"Культура с названием '{CultureName}' не найдена";
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"Исключать: {String.Join(", ", culture.ExcludeLetters)}");
+        sb.Append($"Окончания: {String.Join(", ", culture.Endings)}");
+        return sb.ToString();
     }
 }

@@ -51,12 +51,7 @@ public class Name
     private char[] GetLetterOptions()
     {
         return rules
-            .Select(r =>
-            {
-                var t = r.GetLetterOptions(
-                new NameBuildingContext(alphabet, body, currentPosition, firstLetter, ending));
-                return t;
-            })
+            .Select(r => r.GetLetterOptions(new NameBuildingContext(alphabet, body, currentPosition, firstLetter, ending)))
             .Aggregate((previous, current) => previous
                 .Intersect(current)
                 .ToArray());
